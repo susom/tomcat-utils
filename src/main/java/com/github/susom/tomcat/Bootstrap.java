@@ -31,25 +31,28 @@ import java.util.Properties;
  */
 public class Bootstrap {
   public static void main(String[] args) {
-    String filename = System.getProperty("properties");
+    String filenames = System.getProperty("properties");
 
-    if (filename != null) {
-      try (Reader reader = new FileReader(filename)) {
-        Properties fileProperties = new Properties();
-        fileProperties.load(reader);
-        for (String key : fileProperties.stringPropertyNames()) {
-          String value = fileProperties.getProperty(key);
-          if (value == null || System.getProperty(key) != null) {
-            continue;
+    if (filenames != null) {
+      for (String filename : filenames.split(",")) {
+        try (Reader reader = new FileReader(filename)) {
+          Properties fileProperties = new Properties();
+          fileProperties.load(reader);
+          for (String key : fileProperties.stringPropertyNames()) {
+            String value = fileProperties.getProperty(key);
+            if (value == null || System.getProperty(key) != null) {
+              continue;
+            }
+            System.setProperty(key, value);
           }
-          System.setProperty(key, value);
+        } catch (Exception e) {
+          e.printStackTrace();
+          System.exit(1);
         }
-      } catch (Exception e) {
-        e.printStackTrace();
-        System.exit(1);
       }
     }
 
+//    System.getProperties().list(System.out);
     org.apache.catalina.startup.Bootstrap.main(args);
   }
 }
